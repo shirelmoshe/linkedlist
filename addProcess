@@ -1,0 +1,223 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include "typesStructs.h"
+#include "oneSnapShot.h"
+#include "typesFilesHeader.h"
+#include "resetCollectionsFile.h"
+#include "structHeaderFunction.h"
+#include "SnapShotList.h"
+#include "dictionaryFunctions.h"
+#pragma warning(disable:4996)
+
+PROCESS* PROCESS_Head = NULL;
+PROCESS* PROCESS_Tail = NULL;
+
+int processCounter = 0;
+
+
+
+void addProcess(PROCESS* theNewProcess)//Links the PROCESS that receives the linked list
+{
+	// The function has started
+
+
+	
+	addDLL(NULL);
+
+
+	if (theNewProcess == NULL)
+	{
+		processCounter = 0;
+		PROCESS_Head = NULL;
+		return;
+	}
+
+	
+	
+	if (FirstProcess > 0)//Checks if this is the first linked record
+	{
+	
+		linkedListToCheck(theNewProcess);
+
+		if (existsProcessed == 1)
+		{
+			
+			existsProcessed = 0;
+			return;
+		}
+
+	}
+
+	
+	++processCounter;
+
+
+	newProcess = (PROCESS*)malloc(sizeof(PROCESS));
+	if (!newProcess)
+	{
+		//error - No memory allocation
+		exit(1);
+	}
+
+
+	//add the all information from new process 
+	strcpy(newProcess->processName, theNewProcess->processName);
+	newProcess->PageFaultCount = theNewProcess->PageFaultCount;
+	newProcess->WorkingSetSize = theNewProcess->WorkingSetSize;
+	newProcess->QuotaPeakPagedPoolUsage = theNewProcess->QuotaPeakPagedPoolUsage;
+	newProcess->QuotaPagedPoolUsage = theNewProcess->QuotaPagedPoolUsage;
+	newProcess->PagefileUsage = theNewProcess->PagefileUsage;
+	newProcess->processId = theNewProcess->processId;
+	newProcess->DLLNumber = theNewProcess->DLLNumber;
+	newProcess->countProcess = processCounter;
+
+	
+	if (loadFormFile == 0)
+	{
+		
+		newProcess->dll = theNewProcess->dll;
+		newProcess->dllTail = theNewProcess->dllTail;
+	}
+
+	newProcess->next = NULL;
+
+	if (PROCESS_Head == NULL)
+	{
+
+		PROCESS_Head = newProcess;
+		PROCESS_Tail = newProcess;
+		newProcess->prev = NULL;
+	}
+	else
+	{
+		PROCESS_Tail->next = newProcess;
+		newProcess->prev = PROCESS_Tail;
+		PROCESS_Tail = newProcess;
+	}
+
+	
+	headerProcessDetails();
+}
+
+
+
+void headerProcessDetails()// creates a header struct
+{
+	processHeaderFile->versionProcess = versionOfProcess;
+	processHeaderFile->reserve[20] = NULL;
+}
+#include <stdlib.h> 
+#include <stdio.h>
+#include <time.h>
+#include "typesStructs.h"
+#include "typesFilesHeader.h"
+#include "SnapShotList.h"
+#include "structHeaderFunction.h"
+#include "oneSnapShot.h"
+#pragma warning(disable:4996)
+
+
+DLLName* DLLName_Head = NULL;
+DLLName* DLLName_Tail = NULL;
+
+int counterDll = 0;
+
+
+void addDLL(char dllName[])
+//adds a dll to the linked list
+{
+
+
+	++counterDll;
+
+
+	if (dllName == NULL)
+	{
+
+		counterDll = 0;
+		DLLName_Head = NULL;
+		return;
+	}
+
+
+	DLLName* newDLL = (DLLName*)malloc(sizeof(DLLName));
+	if (!newDLL)
+	{
+		//error - No memory allocation
+		exit(1);
+	}
+
+
+	newDLL->countDLL = counterDll;//add the dll number 
+
+
+	strcpy(newDLL->nameOfDLL, dllName);	//add the dll name 
+
+
+	newDLL->next = NULL;
+
+
+	if (DLLName_Head == NULL)
+	{
+
+		DLLName_Head = newDLL;
+
+
+		DLLName_Tail = newDLL;
+
+
+		newDLL->prev = NULL;
+	}
+	else//connecting the new dll to the old dll
+	{
+
+		DLLName_Tail->next = newDLL;
+
+
+		newDLL->prev = DLLName_Tail;
+
+
+		DLLName_Tail = newDLL;
+
+	}
+
+
+	headerDLLDetails();
+
+}
+
+
+
+void headerDLLDetails()// creates a header struct
+{
+
+	DLLHeaderFile->versionDLLName = versionOfDLL;
+
+
+	DLLHeaderFile->reserve[20] = NULL;
+}
+
+
+
+
+
+DLLName* originalListDLL(DLLName* TailOfExistDLL, DLLName* newList)//The function checks if the DLL exists in the linked list of the original DLL and if it does not exist it adds it
+{
+
+	newList->countDLL = TailOfExistDLL->countDLL + 1;
+
+	newList->next = NULL;
+
+
+	TailOfExistDLL->next = newList;
+
+
+	newList->prev = TailOfExistDLL;
+
+
+	TailOfExistDLL = newList;
+
+
+	return TailOfExistDLL;
+}
