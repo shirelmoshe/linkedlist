@@ -13,6 +13,10 @@
 PROCESS* PROCESS_Head = NULL;
 PROCESS* PROCESS_Tail = NULL;
 
+DLLName* DLLName_Head = NULL;
+DLLName* DLLName_Tail = NULL;
+int counterDll = 0;
+
 int processCounter = 0;
 
 
@@ -107,21 +111,8 @@ void headerProcessDetails()// creates a header struct
 	processHeaderFile->versionProcess = versionOfProcess;
 	processHeaderFile->reserve[20] = NULL;
 }
-#include <stdlib.h> 
-#include <stdio.h>
-#include <time.h>
-#include "typesStructs.h"
-#include "typesFilesHeader.h"
-#include "SnapShotList.h"
-#include "structHeaderFunction.h"
-#include "oneSnapShot.h"
-#pragma warning(disable:4996)
 
 
-DLLName* DLLName_Head = NULL;
-DLLName* DLLName_Tail = NULL;
-
-int counterDll = 0;
 
 
 void addDLL(char dllName[])
@@ -187,8 +178,6 @@ void addDLL(char dllName[])
 
 }
 
-
-
 void headerDLLDetails()// creates a header struct
 {
 
@@ -197,10 +186,6 @@ void headerDLLDetails()// creates a header struct
 
 	DLLHeaderFile->reserve[20] = NULL;
 }
-
-
-
-
 
 DLLName* originalListDLL(DLLName* TailOfExistDLL, DLLName* newList)//The function checks if the DLL exists in the linked list of the original DLL and if it does not exist it adds it
 {
