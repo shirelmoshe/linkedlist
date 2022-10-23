@@ -1,0 +1,61 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "typesStructs.h"
+#include "dictionaryFunctions.h"
+#pragma warning(disable : 4996)
+
+processDictionary* processDictionary_Head = NULL;
+processDictionary* processDictionary_Tail = NULL;
+
+processDictionary* theDictionaryProcess = NULL;
+
+//get the first process and links his name to a dictinary process linked list
+void createsdictionaryProcess(PROCESS* ProcessInDLL)
+{
+	if (ProcessInDLL == NULL)
+	{
+		processDictionary_Head = NULL;
+		return;
+	}
+
+	PROCESS* useProcess = ProcessInDLL;
+	theDictionaryProcess = (processDictionary*)malloc(sizeof(processDictionary));
+	if (theDictionaryProcess == NULL)
+	{
+		//char* str = strerror(GetLastError());
+		//LogError(str);
+
+		return;
+	}
+
+	theDictionaryProcess->next = NULL;
+
+	if (processDictionary_Head == NULL) {
+
+		theDictionaryProcess->counterDictionaryProcess = 1;
+		processDictionary_Head = theDictionaryProcess;
+		processDictionary_Tail = theDictionaryProcess;
+		theDictionaryProcess->prev = NULL;
+	}
+
+
+	strcpy(theDictionaryProcess->nameOfProcess, useProcess->processName);
+
+}
+
+
+
+void addingProcessDictionary(dictionaryDLL* indexDll, PROCESS* theProcessName)//get process who used the same dlls and links his name to a dictinary process linked list
+
+{
+	processDictionary* dictionaryProcess_Tail = indexDll->dictionaryProcessTail;
+	processDictionary* newProcessInList = (processDictionary*)malloc(sizeof(processDictionary));
+	strcpy(newProcessInList->nameOfProcess, theProcessName->processName);
+	newProcessInList->next = NULL;
+	dictionaryProcess_Tail->next = newProcessInList;
+	newProcessInList->prev = dictionaryProcess_Tail;
+	newProcessInList->counterDictionaryProcess = dictionaryProcess_Tail->counterDictionaryProcess + 1;
+	dictionaryProcess_Tail = newProcessInList;
+	indexDll->dictionaryProcessTail = newProcessInList;
+}
