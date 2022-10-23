@@ -1,0 +1,47 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "typesStructs.h"
+#include "resetCollectionsFile.h"
+#include "structHeaderFunction.h"
+#pragma warning(disable:4996)
+
+
+int restet = 0;
+//Creates space to header structs
+void doingMalloc()
+{
+	//sign that resets the space to header structss
+	if (restet == 1)
+	{
+		restet = 0;
+		free(snapshotFile);
+		free(processFile);
+		free(DLLFile);
+		return;
+	}
+
+
+	snapshotFile = (snapShotHeader*)malloc(sizeof(snapShotHeader));
+	if (!snapshotFile)
+	{
+		//error
+		return;
+	}
+
+	processFile = (processHeader*)malloc(sizeof(processHeader));
+	if (!processFile)
+	{
+		//error
+		return;
+	}
+
+
+	DLLFile = (DLLNameHeaders*)malloc(sizeof(DLLNameHeaders));
+	if (!DLLFile)
+	{
+		//error
+		return;
+	}
+
+
+}
