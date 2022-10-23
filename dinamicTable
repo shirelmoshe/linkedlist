@@ -1,0 +1,140 @@
+#include <stdlib.h> 
+#include <stdio.h>
+#include <time.h>
+#include "typesStructs.h"
+#include "displayFunction.h"
+#include "homePageHTML.h"
+#include "operationFunction.h"
+
+#pragma warning(disable:4996)
+
+
+
+char* processesTitle(snapshot* snapShotHTML) //creating a dynamic process title
+{
+	titleOfProcesses = 1;
+	char* lineInTable = (char*)malloc(100);
+	lineInTable[0] = NULL;
+	if (!lineInTable)
+	{
+		//error
+		return;
+	}
+	sprintf(lineInTable, "<h1> Samples List Number : %d At %s </h1>", snapShotHTML->counterOfSnapsNumber, snapShotHTML->snapshotTime);
+
+
+	return lineInTable;
+
+}
+
+
+
+
+
+char* dllTable(PROCESS* processHTML) //The function creates a DLL table
+{
+	DLLName* dlls = processHTML->dll;
+	char* lineInTable = (char*)malloc(sizeof(DLLName) + 200);
+	char* origin = lineInTable;
+	if (!lineInTable)
+	{
+		//error
+		return;
+	}
+	char* Options = (char*)malloc(sizeof(DLLName) * processHTML->DLLNumber + 10000);
+	if (!Options)
+	{
+		//error
+		return;
+	}
+	Options[0] = NULL;
+	while (dlls != NULL)
+	{
+
+		sprintf(lineInTable, "<option> %s </option>\n", dlls->nameOfDLL);
+		dlls = dlls->next;
+
+		
+		strcat(Options, lineInTable);
+
+
+	}
+
+	free(origin);
+
+	return Options;
+}
+
+
+
+
+char* processesTable(snapshot* HTMLsnapshot) //the function creating a dynamic process table
+{
+
+	
+	PROCESS* largestProcessMemory = theGreatestMemory(HTMLsnapshot);//Checks which process takes the most memory
+
+	PROCESS* process = HTMLsnapshot->myprocess;
+	char* lineInTable = (char*)malloc(sizeof(PROCESS) * 100000);
+	if (!lineInTable)
+	{
+		//error
+		return 1;
+	}
+	char* theProcesses = (char*)malloc(sizeof(PROCESS) * HTMLsnapshot->counterProcess + 10000000);
+	if (!theProcesses)
+	{
+		//error
+		return 1;
+	}
+	theProcesses[0] = NULL;
+	char* DLLoption = NULL;
+	while (process != NULL)
+	{
+	
+		if (largestProcessMemory->WorkingSetSize == process->WorkingSetSize) //Adds an emoji to the PROCESS with the largest memory
+		{
+
+			
+			DLLoption = dllTable(process);
+			lineInTable[0] = "";
+			sprintf(lineInTable, "<tr>\n<td> %s </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d <i class=\"fa fa-warning\" style=\"color:red\"> </i></td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td><select>\n<option selected>dll's list</option>\n%s</select></td>\n</tr>", process->processName, process->processId, process->PageFaultCount, process->WorkingSetSize, process->QuotaPagedPoolUsage, process->QuotaPeakPagedPoolUsage, process->PagefileUsage, process->DLLNumber, DLLoption);
+
+		}
+		else
+		{
+		
+			DLLoption = dllTable(process);
+			lineInTable[0] = "";
+			sprintf(lineInTable, "<tr>\n<td> %s </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n<td><select>\n<option selected>dll's list</option>\n%s</select></td>\n</tr>", process->processName, process->processId, process->PageFaultCount, process->WorkingSetSize, process->QuotaPagedPoolUsage, process->QuotaPeakPagedPoolUsage, process->PagefileUsage, process->DLLNumber, DLLoption);
+		}
+		process = process->next;
+
+	
+		strcat(theProcesses, lineInTable);//Connects the rows to the table
+		
+	}
+	free(lineInTable);
+	free(DLLoption);
+
+	
+	return theProcesses;
+}
+
+
+char* SnapShotTable(snapshot* snapShot_html, char* NameProcessHtml, int countDLLInSnapHTML, SIZE_T sizeOfMemoryHTML) //creating a dynamic sample table
+{
+
+	char* lineInTable = (char*)malloc(sizeof(int) * 100);
+	//lineInTable[0] = NULL;
+	if (!lineInTable)
+	{
+		//errors
+		return;
+	}
+	sprintf(lineInTable, "<tr>\n<td> %d </td>\n<td><a href =\"%s\" >Sample%d</a></td>\n<td> %d </td>\n<td> %d </td>\n<td> %d </td>\n</tr>\n", snapShot_html->counterOfSnapsNumber, NameProcessHtml, snapShot_html->counterOfSnapsNumber, snapShot_html->counterProcess, countDLLInSnapHTML, sizeOfMemoryHTML);
+	return lineInTable;
+}
+
+
+
