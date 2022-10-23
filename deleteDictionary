@@ -1,0 +1,31 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "typesStructs.h"
+#include "resetCollectionsFile.h"
+#pragma warning(disable:4996)
+
+
+
+//Resets the dctionary dll and dctionary processes
+void deleteDictionay()
+{
+	dictionaryDLL* theCurrentDictionary = dictionaryDLL_Head;
+	dictionaryDLL* theOriginalDictionary;
+	processDictionary* currentProcessDictionary = theCurrentDictionary->dictionaryProcessUsed;
+	processDictionary* theOriginalDictionaryPocess;
+
+	while (theCurrentDictionary != NULL) {
+
+		currentProcessDictionary = theCurrentDictionary->dictionaryProcessUsed;
+		while (currentProcessDictionary != NULL) {
+
+			theOriginalDictionaryPocess = currentProcessDictionary;
+			currentProcessDictionary = currentProcessDictionary->next;
+			free(theOriginalDictionaryPocess);
+		}
+		theOriginalDictionary = theCurrentDictionary;
+		theCurrentDictionary = theCurrentDictionary->next;
+		free(theOriginalDictionary);
+	}
+
+}
