@@ -1,0 +1,92 @@
+
+#include <string.h>
+#include <stdio.h>
+#include <time.h>
+#include "typesStructs.h"
+#include "SnapShotList.h"
+#include "SnapShotList.h"
+#pragma warning(disable:4996)
+
+int checksIfProcessedExists = 0;
+extern int ExistsDLL = 0;
+
+
+
+void linkedListToCheck(PROCESS* processForTesting)//The function receives a new PROCESS and checks if it exists in a linked list
+{
+	PROCESS* originalProcess = PROCESS_Head;
+
+	while (originalProcess != NULL)
+	{
+		if ((strcmp(originalProcess->processName, processForTesting->processName) == 0) && originalProcess->processId == processForTesting->processId)//If the name and ID are equal, we add the new memory to the old memory
+		{
+			
+			originalProcess->PageFaultCount += processForTesting->PageFaultCount;
+			originalProcess->WorkingSetSize += processForTesting->WorkingSetSize;
+			originalProcess->QuotaPeakPagedPoolUsage += processForTesting->QuotaPeakPagedPoolUsage;
+			originalProcess->QuotaPagedPoolUsage += processForTesting->QuotaPagedPoolUsage;
+			originalProcess->PagefileUsage += processForTesting->PagefileUsage;
+
+			checkListDLL(originalProcess, processForTesting->dll);//Checks if there are new DLLs that need to be added
+
+			checksIfProcessedExists = 1;
+
+			return;
+
+		}
+
+		
+		originalProcess = originalProcess->next;
+	}
+
+}
+
+
+
+
+/*The function checks if the new DLL is equal to one of the original DLLs
+If the DLL does not exist in the list, it adds it
+*/
+
+void checkListDLL(PROCESS* originalProcess, DLLName* CheckDLL)
+{
+	DLLName* currentDLL = originalProcess->dll;
+	DLLName* newDLL = CheckDLL;
+
+	while (newDLL != NULL)//The new DLL to test
+
+	{
+		currentDLL = originalProcess->dll;
+
+		while (currentDLL != NULL)//original 
+		{
+
+			if (strcmp(newDLL->nameOfDLL, currentDLL->nameOfDLL) == 0)
+			{
+
+				currentDLL = DLLName_Tail;
+
+
+				ExistsDLL = 1;
+			}
+			currentDLL = currentDLL->next;
+		}
+
+
+		if (ExistsDLL != 1)
+		{
+
+			DLLName* dllTailProcessCurrent = originalListDLL(originalProcess->dllTail, newDLL);//Adds the new DLL to the list
+
+			originalProcess->dllTail = dllTailProcessCurrent;
+			originalProcess->DLLNumber = dllTailProcessCurrent->countDLL;
+
+		}
+		newDLL = newDLL->next;
+
+
+		ExistsDLL = 0;
+
+	}
+
+}
