@@ -1,0 +1,155 @@
+#include <stdio.h>
+#include "typesStructs.h"
+#include "typesFilesHeader.h"
+#include "fileFunction.h"
+#include "oneSnapShot.h"
+#include "resetCollectionsFile.h"
+#include "homePageHTML.h"
+
+#pragma warning(disable:4996)
+
+snapshot* newSnapShot = NULL;
+PROCESS* newProcess = NULL;
+
+void snapshotLoadFromFile()// the function reads from the file the header
+{
+	printf("Please type a name for the file\n");
+	scanf("%s", fileName);
+
+	FILE* loadFile = fopen(fileName, "rb");
+	if (!loadFile)
+	{
+		printf("The file did not open");
+		return 1;
+	}
+	//sign to the add functions that this is loadFormFile.
+	loadFormFile = 1;
+
+	snapShotHeader* loadHeaderFileSnapshot;
+	loadHeaderFileSnapshot = (snapShotHeader*)malloc(sizeof(snapShotHeader));
+	if (!loadHeaderFileSnapshot)
+	{
+		//error
+		return 1;
+	}
+	processHeader* loadHeaderFileProcess;
+	loadHeaderFileProcess = (processHeader*)malloc(sizeof(processHeader));
+	if (!loadHeaderFileProcess)
+	{
+		//error
+		return 1;
+	}
+	DLLNameHeaders* loadHeaderFileDLL;
+	loadHeaderFileDLL = (DLLNameHeaders*)malloc(sizeof(DLLNameHeaders));
+	if (!loadHeaderFileDLL)
+	{
+		//error
+		return 1;
+	}
+
+
+	snapshot* currentSnapShot;
+	PROCESS* currentProcess;
+	DLLName* currentDLL;
+
+	int read = fread(loadHeaderFileSnapshot, sizeof(snapShotHeader), 1, loadFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+	read = fread(loadHeaderFileProcess, sizeof(processHeader), 1, loadFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+	read = fread(loadHeaderFileDLL, sizeof(DLLNameHeaders), 1, loadFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+
+	currentSnapShot = (snapshot*)malloc(sizeof(snapshot));
+	if (!currentSnapShot)
+	{
+		//error
+		return 1;
+	}
+
+	currentProcess = (PROCESS*)malloc(sizeof(PROCESS));
+	if (!currentProcess)
+	{
+		//error
+		return 1;
+	}
+
+	currentDLL = (DLLName*)malloc(sizeof(DLLName));
+	if (!currentDLL)
+	{
+		//error
+		return 1;
+	}
+
+	for (int y = 0; y < loadHeaderFileSnapshot->countSnapshot; y++)
+	{
+		read = fread(currentSnapShot, sizeof(snapshot), 1, loadFile);
+		if (!read)
+		{
+			//error
+			return 1;
+		}
+
+		addOneSnapShot(currentSnapShot);
+
+		for (int i = 0; i < currentSnapShot->counterProcess; i++)
+		{
+
+			read = fread(currentProcess, sizeof(PROCESS), 1, loadFile);
+			if (!read)
+			{
+				//error
+				return 1;
+			}
+
+			addProcess(currentProcess);
+
+			for (int j = 0; j < currentProcess->DLLNumber; j++)
+			{
+
+				read = fread(currentDLL, sizeof(DLLName), 1, loadFile);
+				if (!read)
+				{
+					//error
+					return 1;
+				}
+
+				addDLL(currentDLL->nameOfDLL);
+			}
+
+			newProcess->dll = DLLName_Head;
+			newProcess->dllTail = DLLName_Tail;
+		}
+
+		newSnapShot->myprocess = PROCESS_Head;
+		newSnapShot->counterProcess = PROCESS_Tail->countProcess;
+
+		//after it end reading Snapshot,creates html pages
+		creatingHtml();
+	}
+
+	loadFormFile = 0;
+
+
+
+	free(currentSnapShot);
+	free(currentProcess);
+	free(currentDLL);
+
+
+}
+
