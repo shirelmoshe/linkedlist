@@ -1,0 +1,103 @@
+#include <stdlib.h> 
+#include <stdio.h>
+#include <time.h>
+#include "typesStructs.h"
+#include "operationFunction.h"
+
+#pragma warning(disable:4996)
+
+
+//The function summarizes in each process the entire DLL
+int addingDll(snapshot* snapShot) {
+
+	PROCESS* theNextProcess = snapShot->myprocess;
+	long sumDll = 0;
+
+
+	while (theNextProcess != NULL) {
+		sumDll += theNextProcess->DLLNumber;
+		theNextProcess = theNextProcess->next;
+	}
+
+	
+	return sumDll;
+
+
+}
+
+
+SIZE_T memoryAvgForALLSnapshot() //The function calculate average of all memory of processes that in all the snapshotns
+{
+
+	snapshot* theNextSnapshot = snapshot_Head;
+	PROCESS* moveProcess = theNextSnapshot->myprocess;
+	SIZE_T averageOfMemory = 0;
+	int sumProcess = 0;
+
+
+	while (theNextSnapshot != NULL) {
+
+		moveProcess = theNextSnapshot->myprocess;
+
+		while (moveProcess != NULL) {
+			sumProcess++;
+			averageOfMemory += moveProcess->WorkingSetSize;
+
+			moveProcess = moveProcess->next;
+		}
+
+		theNextSnapshot = theNextSnapshot->next;
+	}
+	averageOfMemory = averageOfMemory / sumProcess;
+
+
+	return averageOfMemory;
+
+
+
+}
+
+
+
+PROCESS* theGreatestMemory(snapshot* snapShot_html) //The function Checks which process takes the most memory
+{
+	PROCESS* theProcess = snapShot_html->myprocess;
+	PROCESS* retProcess = "";
+	SIZE_T theBiggesMemory = snapShot_html->myprocess->WorkingSetSize;
+
+
+	while (theProcess != NULL)
+	{
+		if (theProcess->WorkingSetSize > theBiggesMemory)
+		{
+			theBiggesMemory = theProcess->WorkingSetSize;
+			retProcess = theProcess;
+		}
+		theProcess = theProcess->next;
+
+	}
+
+
+	return retProcess;
+}
+
+
+
+SIZE_T memoryAverage(snapshot* snapShot)  //The function calculate average of all memory of processes
+
+{
+
+	PROCESS* moveProcess = snapShot->myprocess;
+	SIZE_T averageOfMemory = 0;
+
+
+	while (moveProcess != NULL) {
+		averageOfMemory += moveProcess->WorkingSetSize;
+		moveProcess = moveProcess->next;
+	}
+
+	averageOfMemory = averageOfMemory / snapShot->counterProcess;
+
+	
+	return averageOfMemory;
+}
