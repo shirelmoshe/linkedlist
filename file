@@ -1,0 +1,254 @@
+#include <stdio.h>
+#include "typesStructs.h"
+#include "typesFilesHeader.h"
+#include "fileFunction.h"
+#include "oneSnapShot.h"
+#include "resetCollectionsFile.h"
+#include "homePageHTML.h"
+
+#pragma warning(disable:4996)
+
+snapshot* newSnapShot = NULL;
+PROCESS* newProcess = NULL;
+
+headerSnaphsot* snapshotFile = NULL;
+headerProcess* processFile = NULL;
+DLLNameHeaders* DLLFile = NULL;
+
+char fileName[50] = "";
+
+void snapshotLoadFromFile()// the function reads from the file the header
+{
+	printf("Please type a name for the file\n");
+	scanf("%s", fileName);
+
+	FILE* downloadableFile = fopen(fileName, "rb");
+	if (!downloadableFile)
+	{
+		printf("The file did not open");
+		return 1;
+	}
+	
+	downloadFromAFile = 1;
+
+	headerSnaphsot* downloadSnapshotHeader;
+	downloadSnapshotHeader = (headerSnaphsot*)malloc(sizeof(headerSnaphsot));
+	if (!downloadSnapshotHeader)
+	{
+		//error
+		return 1;
+	}
+	headerProcess* downloadProcessHeader;
+	downloadProcessHeader = (headerProcess*)malloc(sizeof(headerProcess));
+	if (!downloadProcessHeader)
+	{
+		//error
+		return 1;
+	}
+	DLLNameHeaders* downloadDllHeader;
+	downloadDllHeader = (DLLNameHeaders*)malloc(sizeof(DLLNameHeaders));
+	if (!downloadDllHeader)
+	{
+		//error
+		return 1;
+	}
+
+
+	snapshot* TheCurrentSnapshot;
+	PROCESS* theCurrentProcess;
+	DLLName* theCurrentDLL;
+
+	int read = fread(downloadSnapshotHeader, sizeof(headerSnaphsot), 1, downloadableFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+	read = fread(downloadProcessHeader, sizeof(headerProcess), 1, downloadableFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+	read = fread(downloadDllHeader, sizeof(DLLNameHeaders), 1, downloadableFile);
+	if (!read)
+	{
+		//error
+		return 1;
+	}
+
+
+	TheCurrentSnapshot = (snapshot*)malloc(sizeof(snapshot));
+	if (!TheCurrentSnapshot)
+	{
+		//error
+		return 1;
+	}
+
+	theCurrentProcess = (PROCESS*)malloc(sizeof(PROCESS));
+	if (!theCurrentProcess)
+	{
+		//error
+		return 1;
+	}
+
+	theCurrentDLL = (DLLName*)malloc(sizeof(DLLName));
+	if (!theCurrentDLL)
+	{
+		//error
+		return 1;
+	}
+
+	for (int y = 0; y < downloadSnapshotHeader->countSnapshot; y++)
+	{
+		read = fread(TheCurrentSnapshot, sizeof(snapshot), 1, downloadableFile);
+		if (!read)
+		{
+			//error
+			return 1;
+		}
+
+		addOneSnapShot(TheCurrentSnapshot);
+
+		for (int i = 0; i < TheCurrentSnapshot->counterProcess; i++)
+		{
+
+			read = fread(theCurrentProcess, sizeof(PROCESS), 1, downloadableFile);
+			if (!read)
+			{
+				//error
+				return 1;
+			}
+
+			addProcess(theCurrentProcess);
+
+			for (int j = 0; j < theCurrentProcess->DLLNumber; j++)
+			{
+
+				read = fread(theCurrentDLL, sizeof(DLLName), 1, downloadableFile);
+				if (!read)
+				{
+					//error
+					return 1;
+				}
+
+				addDLL(theCurrentDLL->nameOfDLL);
+			}
+
+			newProcess->dll = DLLName_Head;
+			newProcess->dllTail = DLLName_Tail;
+		}
+
+		newSnapShot->myprocess = PROCESS_Head;
+		newSnapShot->counterProcess = PROCESS_Tail->countProcess;
+
+		//after it end reading Snapshot,creates html pages
+		creatingHtml();
+	}
+
+	downloadFromAFile = 0;
+
+
+
+	free(TheCurrentSnapshot);
+	free(theCurrentProcess);
+	free(theCurrentDLL);
+
+
+}
+
+
+void InsertingASnapshotIntoAFile()
+{
+	int write;
+	if (snapshotFile->versionSnapShot == NULL)
+	{
+		//the snapShotHeaderFile not exists
+		printf("There are no  existing Snapshots");
+		return;
+	}
+	printf("enter name for file\n");
+	scanf("%s", fileName);
+	FILE* f = fopen(fileName, "wb");
+	if (!f)
+	{
+		printf("The file did not open");
+		exit(1);
+	}
+
+
+
+	write = fwrite(snapshotFile, sizeof(headerSnaphsot), 1, f);
+	if (!write)
+	{
+		//error
+		return;
+	}
+	write = fwrite(processFile, sizeof(headerProcess), 1, f);
+	if (!write)
+	{
+		//error
+		return;
+	}
+
+	write = fwrite(DLLFile, sizeof(DLLNameHeaders), 1, f);
+	if (!write)
+	{
+		//error
+		return;
+	}
+
+
+	snapshot* currentSnapShot = snapshot_Head;
+	PROCESS* currentProcess = currentSnapShot->myprocess;
+	DLLName* currentDLL = currentProcess->dll;
+
+	while (currentSnapShot != NULL)
+	{
+		write = fwrite(currentSnapShot, sizeof(snapshot), 1, f);
+		if (!write)
+		{
+			//error
+			return;
+		}
+
+		currentProcess = currentSnapShot->myprocess;
+
+		while (currentProcess != NULL)
+		{
+			write = fwrite(currentProcess, sizeof(PROCESS), 1, f);
+			if (!write)
+			{
+				//error
+				return;
+			}
+
+			currentDLL = currentProcess->dll;
+
+			while (currentDLL != NULL)
+			{
+				write = fwrite(currentDLL, sizeof(DLLName), 1, f);
+				if (!write)
+				{
+					//error
+					return;
+				}
+
+				currentDLL = currentDLL->next;
+			}
+
+
+			currentProcess = currentProcess->next;
+
+		}
+
+		currentSnapShot = currentSnapShot->next;
+	}
+	fclose(f);
+}
+
+
+
+
